@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Борода і Ножиці — онлайн-запис</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700&family=Unbounded:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f3ee;--surface:#fff;--ink:#1d2b27;--muted:#5d6b66;--line:#d9d3c8;--green:#1f3a34;--red:#c8372d;--blue:#2b5aa8;--err:#d9443a;--errbg:#e25a50;--ok:#2e7d4f}
+@media (prefers-color-scheme:dark){:root{--bg:#141a18;--surface:#1d2623;--ink:#ece8df;--muted:#9fada7;--line:#33403b;--green:#8fc3b3;--red:#ee6a5f;--blue:#7ba3e6;--err:#ff8077;--errbg:#7a2a25;--ok:#6fcf97}}
+*{box-sizing:border-box}
+html{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Onest,system-ui,sans-serif;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.pole{height:10px;background:repeating-linear-gradient(-45deg,var(--red) 0 14px,#fff 14px 28px,var(--blue) 28px 42px,#fff 42px 56px)}
+header,main{max-width:760px;margin:0 auto;padding:0 20px}
+header{padding-top:28px}
+h1{font:600 clamp(24px,5vw,34px)/1.15 Unbounded,sans-serif;margin:0 0 6px;color:var(--green)}
+header p{margin:0;color:var(--muted)}
+section{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin-top:18px}
+h2{font:600 17px/1.3 Unbounded,sans-serif;margin:0 0 12px}
+label.opt{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
+label.opt:last-child{border:0}
+label.opt span:first-child{display:flex;gap:10px;align-items:center}
+.price{color:var(--muted);white-space:nowrap}
+.tag{font-size:13px;color:var(--muted)}
+input[type=text],input[type=tel],input[type=email],input[type=date]{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;margin-top:4px}
+.f{margin-bottom:14px}
+.f small{display:block;margin-top:4px;color:var(--err)}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;margin-top:12px}
+.slot{padding:10px 0;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;cursor:pointer}
+.slot.sel{background:var(--green);color:var(--bg);border-color:var(--green)}
+.slot.busy{opacity:.45;text-decoration:line-through;cursor:not-allowed}
+.total{display:flex;justify-content:space-between;font-weight:700;font-size:18px;margin-top:10px}
+.err{background:var(--errbg);color:#c0392b;padding:10px 12px;border-radius:8px;margin-top:14px;font-weight:500}
+.ok{background:var(--surface);border:2px solid var(--ok);color:var(--ink);padding:14px;border-radius:8px;margin-top:14px}
+.btn{width:420px;padding:14px;border:0;border-radius:8px;background:var(--red);color:#fff;font:700 16px Onest,sans-serif;cursor:pointer;margin-top:6px}
+.btn.sec{width:auto;background:transparent;color:var(--red);border:1px solid var(--red);padding:6px 12px;font-size:14px;margin:0}
+.bk{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.bk:last-child{border:0}
+.empty{color:var(--muted)}
+footer{max-width:760px;margin:24px auto;padding:0 20px;color:var(--muted);font-size:13px}
+@media (max-width:480px){section{padding:14px}.btn{width:420px}}
+</style>
+</head>
+<body>
+<div class="pole"></div>
+<header>
+  <h1>Борода і Ножиці</h1>
+  <p>Барбершоп у центрі міста. Запишіться онлайн за хвилину.</p>
+</header>
+<main>
+  <section>
+    <h2>1. Послуги</h2>
+    <div id="services"></div>
+    <div class="total"><span>Разом</span><span id="total">0 ₴</span></div>
+  </section>
+
+  <section>
+    <h2>2. Майстер</h2>
+    <div id="masters"></div>
+  </section>
+
+  <section>
+    <h2>3. Дата і час</h2>
+    <input type="date" id="date" aria-label="Дата візиту">
+    <div class="tag" id="dayNote"></div>
+    <div class="slots" id="slots"></div>
+  </section>
+
+  <section>
+    <h2>4. Ваші контакти</h2>
+    <div class="f"><label for="name">Ім'я</label><input type="text" id="name" placeholder="Олександр"><small id="nameErr"></small></div>
+    <div class="f"><label for="phone">Телефон</label><input type="tel" id="phone" placeholder="+380 50 123 45 67"><small id="phoneErr"></small></div>
+    <div class="f"><label for="email">Email</label><input type="email" id="email" placeholder="name@example.com"><small id="emailErr"></small></div>
+    <button class="btn" id="confirm">Підтвердти запис</button>
+    <div id="msg"></div>
+  </section>
+
+  <section>
+    <h2>Мої записи</h2>
+    <div id="mine"><span class="empty">Записів поки немає.</span></div>
+  </section>
+</main>
+<footer>Навчальний застосунок для практики QA. Усі дані зберігаються лише в пам'яті сторінки і зникають після оновлення.</footer>
+
+<script>
+const SERVICES=[{id:1,n:'Чоловіча стрижка',p:400},{id:2,n:'Борода',p:250},{id:3,n:'Укладання',p:150},{id:4,n:'Камуфляж сивини',p:300}];
+const MASTERS=[{id:1,n:'Андрій',off:0},{id:2,n:'Максим',off:null},{id:3,n:'Ілля',off:6}];
+const TIMES=['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'];
+let state={services:[],master:1,time:null};
+let bookings=[];
+const busy={}; // ключ: дата|майстер -> масив годин
+const $=id=>document.getElementById(id);
+const today=new Date();
+$('date').value=today.toISOString().slice(0,10);
+busy[key()]=['12:00','15:00'];
+
+function key(){return $('date')?.value+'|'+state.master}
+function isBusy(t){return (busy[key()]||[]).includes(t)}
+
+function renderServices(){
+  $('services').innerHTML=SERVICES.map(s=>`<label class="opt"><span><input type="checkbox" value="${s.id}"> ${s.n}</span><span class="price">${s.p} ₴</span></label>`).join('');
+  $('services').querySelectorAll('input').forEach(i=>i.onchange=()=>{
+    state.services=[...$('services').querySelectorAll('input:checked')].map(x=>+x.value);
+    updateTotal();
+  });
+}
+function updateTotal(){
+  let list=state.services.map(id=>SERVICES.find(s=>s.id===id));
+  if(list.length>2) list=list.slice(0,2); // підрахунок
+  $('total').textContent=list.reduce((a,s)=>a+s.p,0)+' ₴';
+}
+function renderMasters(){
+  $('masters').innerHTML=MASTERS.map(m=>`<label class="opt"><span><input type="radio" name="m" value="${m.id}" ${m.id===state.master?'checked':''}> ${m.n}</span><span class="tag">${m.off===0?'вихідний: неділя':m.off===6?'вихідний: субота':'без вихідних'}</span></label>`).join('');
+  $('masters').querySelectorAll('input').forEach(i=>i.onchange=()=>{state.master=+i.value;state.time=null;renderSlots()});
+}
+function renderSlots(){
+  const d=new Date($('date').value);
+  const m=MASTERS.find(x=>x.id===state.master);
+  $('dayNote').textContent=(!isNaN(d)&&m.off===d.getDay())?`${m.n} у цей день не працює.`:'';
+  $('slots').innerHTML=TIMES.map(t=>`<button class="slot ${isBusy(t)?'busy':''} ${state.time===t?'sel':''}" data-t="${t}">${t}</button>`).join('');
+  $('slots').querySelectorAll('.slot').forEach(b=>b.onclick=()=>{
+    if(b.classList.contains('busy'))return;
+    state.time=b.dataset.t;renderSlots();
+  });
+}
+$('date').onchange=()=>{state.time=null;renderSlots()};
+
+function validate(){
+  let ok=true;
+  const name=$('name').value, phone=$('phone').value, email=$('email').value;
+  $('nameErr').textContent=name.length<1?"Вкажіть ім'я":'';
+  $('phoneErr').textContent=phone.length<5?'Вкажіть телефон':'';
+  $('emailErr').textContent=!email.includes('@')?'Вкажіть коректний email':'';
+  if(name.length<1||phone.length<5||!email.includes('@'))ok=false;
+  return ok;
+}
+
+$('confirm').onclick=()=>{
+  $('msg').innerHTML='';
+  if(!state.services.length){$('msg').innerHTML='<div class="err">Оберіть хоча б одну послугу.</div>';return}
+  if(!state.time){$('msg').innerHTML='<div class="err">Оберіть час візиту.</div>';return}
+  if(!validate())return;
+  const snap={date:$('date').value,time:state.time,master:state.master,name:$('name').value,k:key()};
+  // імітація відповіді сервера
+  setTimeout(()=>{
+    bookings.push(snap);
+    (busy[snap.k]=busy[snap.k]||[]).push(snap.time);
+    renderSlots();renderMine();
+    const h=String(parseInt(snap.time)+1).padStart(2,'0')+snap.time.slice(2);
+    $('msg').innerHTML=`<div class="ok">Запис підтверджено! ${snap.name}, чекаємо вас ${snap.date} о ${h}. Майстер: ${MASTERS[0].n}.</div>`;
+  },1200);
+};
+
+function renderMine(){
+  if(!bookings.length){$('mine').innerHTML='<span class="empty">Записів поки немає.</span>';return}
+  $('mine').innerHTML=bookings.map((b,i)=>`<div class="bk"><span>${b.date}, ${b.time} — ${MASTERS.find(m=>m.id===b.master).n}</span><button class="btn sec" data-i="${i}">Скасувати</button></div>`).join('');
+  $('mine').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    bookings.splice(0,1); // скасування
+    renderMine();
+  });
+}
+
+renderServices();renderMasters();renderSlots();
+</script>
+</body>
+</html>
